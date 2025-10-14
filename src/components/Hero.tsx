@@ -35,7 +35,7 @@ const Hero: React.FC = () => {
             viewport={{ once: false, amount: 0.3 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-12 md:mb-6">
               Your Trusted Tech Partner in Chitwan
             </h1>
             <p className="text-xl text-gray-200 mb-8 max-w-lg mx-auto lg:mx-0">

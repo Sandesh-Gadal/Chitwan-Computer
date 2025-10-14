@@ -46,7 +46,12 @@ const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center">
-            <Monitor size={24} className="text-blue-600 mr-4" />
+            <Monitor size={32} className="text-blue-600 mr-4" />
+             {/* <img
+    src="/src/assets/logo.png" // your image path
+    alt="Chitwan Computer Logo"
+    className="w-14 h-14 mr-4 object-contain" // 8 * 4px = 32px same as Monitor
+  /> */}
             <span className={`text-xl lg:text-3xl font-bold text-gray-800 ${
         isScrolled
           ? 'text-gray-800 hover:text-blue-600'

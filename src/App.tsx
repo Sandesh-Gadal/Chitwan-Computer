@@ -3,7 +3,7 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import About from './components/About';
 import Services from './components/Services';
-// import FeaturedProducts from './components/FeaturedProducts';
+import FeaturedProducts from './components/FeaturedProducts';
 import WhyChooseUs from './components/WhyChooseUs';
 import Testimonials from './components/Testimonials';
 import Contact from './components/Contact';
@@ -22,7 +22,7 @@ function App() {
       {/* <TestCanvas/> */}
       <About />
       <Services />
-      {/* <FeaturedProducts /> */}
+      <FeaturedProducts />
       <WhyChooseUs />
       <Testimonials />
       <Contact />
