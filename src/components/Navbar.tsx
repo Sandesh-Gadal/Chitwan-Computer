@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Monitor, ShoppingBag } from 'lucide-react';
-import logo from '../assets/logo.png';
+// import logo from '../assets/logo.png';
 import { useNavigate ,  useLocation} from "react-router-dom";
 
 const Navbar: React.FC = () => {
