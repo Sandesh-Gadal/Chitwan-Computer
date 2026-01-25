@@ -1,14 +1,27 @@
 import React, { useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
+
 import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import About from './components/About';
-import Services from './components/Services';
-import FeaturedProducts from './components/FeaturedProducts';
-import WhyChooseUs from './components/WhyChooseUs';
-import Testimonials from './components/Testimonials';
-import Contact from './components/Contact';
 import Footer from './components/Footer';
-import TestCanvas from './components/TestCanvas';
+import Home from './pages/Home';
+import Products from './components/ProductPage';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+
+// Configure QueryClient with custom defaults
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes (data stays fresh for 5 minutes)
+      gcTime: 10 * 60 * 1000, // 10 minutes (cache persists for 10 minutes)
+      refetchOnWindowFocus: false, // Don't refetch when window regains focus
+      refetchOnMount: true, // Refetch when component mounts (good for product pages)
+      refetchOnReconnect: true, // Refetch when internet reconnects
+      retry: 2, // Retry failed requests twice
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
+    },
+  },
+});
 
 function App() {
   useEffect(() => {
@@ -16,18 +29,23 @@ function App() {
   }, []);
 
   return (
-    <div className="font-sans">
-      <Navbar />
-      <Hero />
-      {/* <TestCanvas/> */}
-      <About />
-      <Services />
-      <FeaturedProducts />
-      <WhyChooseUs />
-      <Testimonials />
-      <Contact />
-      <Footer />
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <div className="font-sans">
+        <Navbar />
+
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/products" element={<Products />} />
+        </Routes>
+
+        <Footer />
+        
+        {/* Add React Query Devtools for development */}
+        {process.env.NODE_ENV === 'development' && (
+          <ReactQueryDevtools initialIsOpen={false} />
+        )}
+      </div>
+    </QueryClientProvider>
   );
 }
 
