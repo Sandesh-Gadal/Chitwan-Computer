@@ -1,0 +1,8 @@
+---
+# cPanel Git Version Control deploy for the React storefront.
+# Shared hosting has no Node, so dist/ is built locally and committed:
+#   npm run build && git add dist && git commit && git push
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/chitwanc/public_html/
+    - /bin/cp -R dist/. $DEPLOYPATH
