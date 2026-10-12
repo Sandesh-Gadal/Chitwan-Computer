@@ -4,6 +4,8 @@ export default {
   theme: {
     extend: {
       colors: {
+        ink: '#111827',
+        paper: '#F2F5F9',
         primary: {
           50: '#E6F0FF',
           100: '#BFDBFE',
@@ -42,7 +44,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        display: ['"Bricolage Grotesque"', '"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
       },
       spacing: {
         '72': '18rem',

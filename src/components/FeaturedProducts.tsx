@@ -1,112 +1,77 @@
 import React from 'react';
-import { ShoppingCart, Heart, Star } from 'lucide-react';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import SectionHeading from './ui/SectionHeading';
+import Reveal from './ui/Reveal';
+import ProductCard, { ProductCardSkeleton } from './products/ProductCard';
+import { useCategories, useProductPage } from '../api/products';
 
-interface ProductProps {
-  image: string;
-  category: string;
-  name: string;
-  price: string;
-  rating: number;
-}
-
-const ProductCard: React.FC<ProductProps> = ({ image, category, name, price, rating }) => {
-  return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden group">
-      <div className="relative">
-        <img src={image} alt={name} className="w-full h-64 object-cover transform group-hover:scale-105 transition duration-500" />
-        {/* <div className="absolute top-0 right-0 bg-orange-500 text-white text-xs font-bold px-3 py-1 m-2 rounded">
-          New Arrival
-        </div> */}
-        {/* <div className="absolute inset-0 bg-black bg-opacity-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-          <button className="bg-white text-blue-600 p-3 rounded-full mx-2 transform hover:scale-110 transition">
-            <ShoppingCart size={20} />
-          </button>
-          <button className="bg-white text-red-500 p-3 rounded-full mx-2 transform hover:scale-110 transition">
-            <Heart size={20} />
-          </button>
-        </div> */}
-      </div>
-      <div className="p-6">
-        <div className="text-sm text-blue-600 font-medium mb-1">{category}</div>
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">{name}</h3>
-        {/* <div className="flex items-center justify-between">
-          <span className="text-xl font-bold text-gray-800">{price}</span>
-          <div className="flex items-center">
-            {Array(5).fill(0).map((_, i) => (
-              <Star 
-                key={i} 
-                size={16} 
-                className={`${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'} ml-1`} 
-              />
-            ))}
-          </div>
-        </div> */}
-      </div>
-    </div>
-  );
-};
+const FEATURED_COUNT = 4;
 
 const FeaturedProducts: React.FC = () => {
-  const products = [
-    {
-      image: "https://gds.jo/image/cache/catalog/Asus/TUF/F16/F16-FX607VU-/ASUS-TUF-Gaming-F16-FX607VU---2-1200x1200.jpg",
-      category: "Laptops",
-      name: "ASUS TUF Gaming F16 FX608JMR",
-      price: "NPR 189,000",
-      rating: 5
-    },
-    {
-      image: "https://images.pexels.com/photos/777001/pexels-photo-777001.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750",
-      category: "Custom PCs",
-      name: "Profesionals and gaming Monitors ",
-      price: "NPR 210,000",
-      rating: 5
-    },
-    {
-      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYolFwTgs2WB8aAWyo1ltj4cXTmZsH2u4i2Q&s",
-      category: "Printers",
-      name: "Gaming PCs",
-      price: "NPR 45,000",
-      rating: 4
-    },
-    {
-      image: "https://www.uniview.com/res/202505/21/20250521_1965360_2443_1018633_704191_0.png",
-      category: "Cameras",
-      name: "UNV Cameras",
-      price: "IPC(40)K-WP",
-      rating: 4
-    }
-  ];
+  // Newest products that are in stock
+  const { data: page, isLoading, isError } = useProductPage({ perPage: FEATURED_COUNT, inStock: true });
+  const featured = page?.data ?? [];
+
+  // Categories that have products, in the store's display order
+  const { data: allCategories = [] } = useCategories();
+  const categories = allCategories
+    .filter((c) => (c.products_count ?? 0) > 0)
+    .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+    .map((c) => ({ ...c, count: c.products_count ?? 0 }));
 
   return (
-    <section id="products" className="py-20 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Featured Products</h2>
-          <div className="w-20 h-1 bg-blue-600 mx-auto mb-6"></div>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Explore our selection of high-quality products, from powerful laptops to custom-built PCs.
-          </p>
-        </div>
+    <section id="products" className="border-t border-slate-200 bg-white py-20 lg:py-28">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <SectionHeading
+          title="New in the store."
+          intro="Our latest stock, with prices. Tap any product for details or to ask us about it on WhatsApp."
+          aside={
+            <Link
+              to="/products"
+              className="group mt-6 inline-flex items-center gap-2 border-b-2 border-ink pb-1 text-[15px] font-semibold text-ink transition-colors hover:border-primary-500 hover:text-primary-500"
+            >
+              View all products
+              <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+            </Link>
+          }
+        />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {products.map((product, index) => (
-            <ProductCard
-              key={index}
-              image={product.image}
-              category={product.category}
-              name={product.name}
-              price={product.price}
-              rating={product.rating}
-            />
-          ))}
-        </div>
+        {/* Shop by category */}
+        {categories.length > 0 && (
+          <Reveal className="mb-12 flex flex-wrap gap-2">
+            {categories.map((category) => (
+              <Link
+                key={category.slug}
+                to={`/products?category=${encodeURIComponent(category.slug)}`}
+                className="group inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:border-ink hover:bg-ink hover:text-white"
+              >
+                {category.name}
+                <span className="text-xs text-slate-500 transition-colors group-hover:text-slate-300">{category.count}</span>
+                <ArrowUpRight size={14} className="text-slate-400 transition-colors group-hover:text-white" />
+              </Link>
+            ))}
+          </Reveal>
+        )}
 
-        {/* <div className="mt-16 text-center">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white py-3 px-8 rounded-lg font-medium text-lg transition duration-300">
-            View All Products
-          </button>
-        </div> */}
+        {isError ? (
+          <div className="rounded-lg border border-dashed border-slate-300 px-6 py-12 text-center">
+            <p className="text-slate-600">We couldn't load products right now.</p>
+            <Link to="/products" className="mt-3 inline-block font-semibold text-primary-600 hover:underline">
+              Try the full catalogue
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 lg:grid-cols-4">
+            {isLoading
+              ? Array.from({ length: FEATURED_COUNT }, (_, i) => <ProductCardSkeleton key={i} />)
+              : featured.map((product, i) => (
+                  <Reveal key={product.id} delay={0.06 * i}>
+                    <ProductCard product={product} />
+                  </Reveal>
+                ))}
+          </div>
+        )}
       </div>
     </section>
   );

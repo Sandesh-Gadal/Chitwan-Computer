@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Phone, Mail, MapPin, Send, Facebook, Instagram, Youtube } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Phone, Mail, MapPin, Clock, ArrowRight, Facebook, Instagram, Youtube } from 'lucide-react';
+import SectionHeading from './ui/SectionHeading';
+import Reveal from './ui/Reveal';
+import { business } from '../data/business';
 
 interface FormData {
   name: string;
@@ -9,222 +11,233 @@ interface FormData {
   message: string;
 }
 
-const Contact: React.FC = () => {
-  const [formData, setFormData] = useState<FormData>({
-    name: '',
-    email: '',
-    phone: '',
-    message: ''
-  });
+const emptyForm: FormData = { name: '', email: '', phone: '', message: '' };
 
+const inputBase =
+  'w-full rounded-md border bg-white px-4 py-3 text-[15px] text-ink placeholder:text-slate-500 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/15';
+
+const Contact: React.FC = () => {
+  const [formData, setFormData] = useState<FormData>(emptyForm);
   const [errors, setErrors] = useState<Partial<FormData>>({});
-  const [submitStatus, setSubmitStatus] = useState<string | null>(null);
+  const [opened, setOpened] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    // Clear error when user starts typing
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name as keyof FormData]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: undefined
-      }));
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
   const validate = (): boolean => {
     const newErrors: Partial<FormData> = {};
-    if (!formData.name.trim()) newErrors.name = 'Name is required';
+    if (!formData.name.trim()) newErrors.name = 'Please enter your name';
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = 'Please enter your email';
     } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = 'That email doesn’t look right';
     }
-    if (!formData.message.trim()) newErrors.message = 'Message is required';
-    
+    if (!formData.message.trim()) newErrors.message = 'Please tell us how we can help';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  // No backend endpoint for messages yet, so hand off to the visitor's email app
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (validate()) {
-      // Simulate form submission
-      setSubmitStatus('submitting');
-      setTimeout(() => {
-        setSubmitStatus('success');
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          message: ''
-        });
-        // Reset success message after 5 seconds
-        setTimeout(() => setSubmitStatus(null), 5000);
-      }, 1500);
-    }
+    if (!validate()) return;
+
+    const subject = `Enquiry from ${formData.name}`;
+    const body = [
+      formData.message,
+      '',
+      `Name: ${formData.name}`,
+      `Email: ${formData.email}`,
+      formData.phone && `Phone: ${formData.phone}`,
+    ]
+      .filter((line) => line !== '')
+      .join('\n');
+
+    window.location.href = `mailto:${business.emails[0]}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    setOpened(true);
+    setFormData(emptyForm);
   };
 
-  return (
-  <motion.section
-      id="contact"
-      className="py-20 bg-gradient-to-b from-white to-gray-100"
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: false, amount: 0.3 }}
-      transition={{ duration: 0.8, ease: 'easeOut' }}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Contact Us</h2>
-          <div className="w-20 h-1 bg-blue-600 mx-auto mb-6"></div>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Have questions or need assistance? Reach out to our team and we'll get back to you as soon as possible.
-          </p>
-        </div>
+  const details = [
+    {
+      icon: Phone,
+      label: 'Call',
+      lines: business.phones.map((p) => ({ text: p.label, href: p.href })),
+    },
+    {
+      icon: Mail,
+      label: 'Email',
+      lines: business.emails.map((email) => ({ text: email, href: `mailto:${email}` })),
+    },
+    {
+      icon: MapPin,
+      label: 'Visit',
+      lines: [
+        { text: business.address.line1, href: business.mapsUrl },
+        { text: business.address.line2 },
+      ],
+    },
+    {
+      icon: Clock,
+      label: 'Hours',
+      lines: [{ text: business.hours.days }, { text: business.hours.time }],
+    },
+  ];
 
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div className="md:flex">
-            <div className="md:w-1/3 bg-blue-600 text-white p-8">
-              <h3 className="text-2xl font-bold mb-8">Get In Touch</h3>
-              
-              <div className="mb-8">
-                <div className="flex items-start mb-4">
-                  <Phone size={20} className="mr-4 mt-1" />
-                  <div>
-                    <h4 className="text-lg font-semibold mb-1">Phone</h4>
-                    <p>+977 9847238888</p>
-                    <p>056-590714</p>
-                  </div>
+  const socials = [
+    { icon: Facebook, href: business.socials.facebook, label: 'Facebook' },
+    { icon: Instagram, href: business.socials.instagram, label: 'Instagram' },
+    { icon: Youtube, href: business.socials.youtube, label: 'YouTube' },
+  ];
+
+  return (
+    <section id="contact" className="border-t border-slate-200 bg-paper py-20 lg:py-28">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <SectionHeading
+          title="Need a quote or a repair? Let's talk."
+          intro="Call, drop by the store, or send a message and we'll get back to you as soon as we can."
+        />
+
+        <div className="grid gap-12 lg:grid-cols-12">
+          {/* Details */}
+          <Reveal className="lg:col-span-5">
+            <dl className="border-b border-slate-300">
+              {details.map(({ icon: Icon, label, lines }) => (
+                <div key={label} className="grid grid-cols-[2.5rem_5rem_1fr] items-start border-t border-slate-300 py-5">
+                  <Icon size={18} strokeWidth={1.8} className="mt-0.5 text-primary-500" />
+                  <dt className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-600">{label}</dt>
+                  <dd className="space-y-1 text-[15px] text-ink">
+                    {lines.map((line) =>
+                      'href' in line && line.href ? (
+                        <a
+                          key={line.text}
+                          href={line.href}
+                          target={line.href.startsWith('http') ? '_blank' : undefined}
+                          rel="noreferrer"
+                          className="block break-all underline-offset-4 hover:text-primary-500 hover:underline"
+                        >
+                          {line.text}
+                        </a>
+                      ) : (
+                        <span key={line.text} className="block text-slate-600">
+                          {line.text}
+                        </span>
+                      )
+                    )}
+                  </dd>
                 </div>
-                
-                <div className="flex items-start mb-4">
-                  <Mail size={20} className="mr-4 mt-1" />
-                  <div>
-                    <h4 className="text-lg font-semibold mb-1">Email</h4>
-                    <p>chitwancomputer@gmail.com</p>
-                    <p>ccsservices40@gmail.com</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <MapPin size={20} className="mr-4 mt-1" />
-                  <div>
-                    <h4 className="text-lg font-semibold mb-1">Address</h4>
-                    <p>Lionschowk,Narayanghat, Chitwan</p>
-                    <p>Nepal</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div>
-                <h4 className="text-lg font-semibold mb-4">Follow Us</h4>
-                <div className="flex space-x-4">
-                  <a href="https://www.facebook.com/chitwancomputer" target="_blank" className="bg-white/20 hover:bg-white/30 p-2 rounded-full transition">
-                    <Facebook size={20} />
-                  </a>
-                  <a href="https://www.instagram.com/chitwancomputer" target="_blank" className="bg-white/20 hover:bg-white/30 p-2 rounded-full transition">
-                    <Instagram size={20} />
-                  </a>
-                  <a href="https://youtube.com/@ccsithub1282?si=arIL10zZ0Czv92n1" target="_blank" className="bg-white/20 hover:bg-white/30 p-2 rounded-full transition">
-                    <Youtube size={20} />
-                  </a>
-                </div>
-              </div>
-            </div>
-            
-            <div className="md:w-2/3 p-8">
-              <h3 className="text-2xl font-bold text-gray-800 mb-6">Send Us a Message</h3>
-              
-              {submitStatus === 'success' && (
-                <div className="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-                  Your message has been sent successfully! We'll get back to you soon.
-                </div>
-              )}
-              
-              <form onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                  <div>
-                    <label htmlFor="name" className="block text-gray-700 font-medium mb-2">Your Name</label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                        errors.name ? 'border-red-500' : 'border-gray-300'
-                      }`}
-                      placeholder="Enter your name here "
-                    />
-                    {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
-                  </div>
-                  
-                  <div>
-                    <label htmlFor="email" className="block text-gray-700 font-medium mb-2">Your Email</label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                        errors.email ? 'border-red-500' : 'border-gray-300'
-                      }`}
-                      placeholder="simple@gmail.com"
-                    />
-                    {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-                  </div>
-                </div>
-                
-                <div className="mb-6">
-                  <label htmlFor="phone" className="block text-gray-700 font-medium mb-2">Phone (Optional)</label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="+977 9800000000"
-                  />
-                </div>
-                
-                <div className="mb-6">
-                  <label htmlFor="message" className="block text-gray-700 font-medium mb-2">Your Message</label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    rows={4}
-                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                      errors.message ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    placeholder="How can we help you?"
-                  ></textarea>
-                  {errors.message && <p className="text-red-500 text-sm mt-1">{errors.message}</p>}
-                </div>
-                
-                <button
-                  type="submit"
-                  disabled={submitStatus === 'submitting'}
-                  className={`flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white py-3 px-8 rounded-lg font-medium text-lg transition duration-300 ${
-                    submitStatus === 'submitting' ? 'opacity-70 cursor-not-allowed' : ''
-                  }`}
+              ))}
+            </dl>
+
+            <div className="mt-8 flex items-center gap-3">
+              <span className="mr-2 text-sm text-slate-600">Follow us</span>
+              {socials.map(({ icon: Icon, href, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={label}
+                  className="flex h-10 w-10 items-center justify-center rounded-md border border-slate-300 text-slate-600 transition-colors hover:border-ink hover:bg-ink hover:text-white"
                 >
-                  {submitStatus === 'submitting' ? 'Sending...' : 'Send Message'}
-                  <Send size={20} className="ml-2" />
-                </button>
-              </form>
+                  <Icon size={18} />
+                </a>
+              ))}
             </div>
-          </div>
+          </Reveal>
+
+          {/* Form */}
+          <Reveal className="lg:col-span-7" delay={0.1}>
+            <form
+              onSubmit={handleSubmit}
+              noValidate
+              className="rounded-lg border border-slate-200 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-8"
+            >
+              <h3 className="font-display text-xl font-semibold text-ink">Send us a message</h3>
+
+              {opened && (
+                <p className="mt-4 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                  Your email app should now be open with the message ready. Just hit send. If nothing opened,
+                  email us at <a href={`mailto:${business.emails[0]}`} className="font-semibold underline">{business.emails[0]}</a>.
+                </p>
+              )}
+
+              <div className="mt-6 grid gap-5 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="name" className="mb-2 block text-sm font-medium text-ink">Name</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className={`${inputBase} ${errors.name ? 'border-red-400' : 'border-slate-300'}`}
+                    placeholder="Your full name"
+                  />
+                  {errors.name && <p className="mt-1.5 text-sm text-red-600">{errors.name}</p>}
+                </div>
+
+                <div>
+                  <label htmlFor="email" className="mb-2 block text-sm font-medium text-ink">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={`${inputBase} ${errors.email ? 'border-red-400' : 'border-slate-300'}`}
+                    placeholder="you@example.com"
+                  />
+                  {errors.email && <p className="mt-1.5 text-sm text-red-600">{errors.email}</p>}
+                </div>
+              </div>
+
+              <div className="mt-5">
+                <label htmlFor="phone" className="mb-2 block text-sm font-medium text-ink">
+                  Phone <span className="font-normal text-slate-500">(optional)</span>
+                </label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className={`${inputBase} border-slate-300`}
+                  placeholder="+977 98XXXXXXXX"
+                />
+              </div>
+
+              <div className="mt-5">
+                <label htmlFor="message" className="mb-2 block text-sm font-medium text-ink">Message</label>
+                <textarea
+                  id="message"
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  rows={5}
+                  className={`${inputBase} resize-y ${errors.message ? 'border-red-400' : 'border-slate-300'}`}
+                  placeholder="Tell us what you need: a laptop, a repair, a custom build…"
+                />
+                {errors.message && <p className="mt-1.5 text-sm text-red-600">{errors.message}</p>}
+              </div>
+
+              <button
+                type="submit"
+                className="group mt-7 inline-flex w-full items-center justify-center gap-2 rounded-md bg-ink px-7 py-3.5 text-[15px] font-semibold text-white transition-colors hover:bg-primary-500 sm:w-auto"
+              >
+                Send message
+                <ArrowRight size={17} className="transition-transform group-hover:translate-x-1" />
+              </button>
+            </form>
+          </Reveal>
         </div>
       </div>
-    </motion.section>
+    </section>
   );
 };
 

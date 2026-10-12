@@ -1,39 +1,30 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+
+const SCRIPT_SRC = 'https://static.elfsight.com/platform/platform.js';
 
 const GoogleReviews = () => {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    // Avoid injecting the widget script more than once
+    const existing = document.querySelector<HTMLScriptElement>(`script[src="${SCRIPT_SRC}"]`);
+    if (existing) {
+      setLoaded(true);
+      return;
+    }
     const script = document.createElement('script');
-    script.src = 'https://static.elfsight.com/platform/platform.js';
+    script.src = SCRIPT_SRC;
     script.async = true;
-    script.defer = true;
-    script.onload = () => setLoaded(true); // Marks as loaded
+    script.onload = () => setLoaded(true);
     document.body.appendChild(script);
   }, []);
 
-return (
-  <motion.div
-    initial={{ opacity: 0, x: 100 }}
-    whileInView={{ opacity: 1, x: 0 }}
-    viewport={{ once: true, amount: 0.2 }}
-    transition={{ duration: 0.8 }}
-    className="w-full my-10 overflow-x-hidden px-4" // Added px-4 for safety
-  >
-    {!loaded && (
-      <div className="text-center text-gray-500 animate-pulse mb-6">
-        Loading Google Reviews...
-      </div>
-    )}
-    <div className="w-full max-w-7xl mx-auto overflow-hidden">
-      <div
-        className="elfsight-app-dd5e296b-6822-4644-b53a-c49a1975bab7"
-        data-elfsight-app-lazy
-      ></div>
+  return (
+    <div className="w-full overflow-hidden">
+      {!loaded && <p className="py-10 text-center text-sm text-slate-500">Loading Google reviews…</p>}
+      <div className="elfsight-app-dd5e296b-6822-4644-b53a-c49a1975bab7" data-elfsight-app-lazy></div>
     </div>
-  </motion.div>
-);
-}
+  );
+};
 
 export default GoogleReviews;

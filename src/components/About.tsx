@@ -1,95 +1,155 @@
-import React from 'react';
-import { Shield, Award, Clock } from 'lucide-react';
-import { motion } from 'motion/react';
-import ccspic from '../assets/Chitwancomputer.png';
+import React, { useLayoutEffect, useRef } from 'react';
+import { ShieldCheck, BadgeCheck, Zap } from 'lucide-react';
+import logo from '../assets/logo.png';
+import { business } from '../data/business';
+import { gsap, MOTION_OK } from '../lib/gsap';
+
+const notes = [
+  {
+    icon: ShieldCheck,
+    title: 'Quality assured',
+    text: 'Every product and service is backed by warranty and support.',
+    tone: 'bg-primary-50 text-primary-700',
+    tilt: '-rotate-3',
+  },
+  {
+    icon: BadgeCheck,
+    title: 'Certified technicians',
+    text: 'Trained on HP, Dell and Lenovo hardware.',
+    tone: 'bg-orange-50 text-orange-700',
+    tilt: 'rotate-2',
+  },
+  {
+    icon: Zap,
+    title: 'Quick turnaround',
+    text: 'Most repairs are done within 24–48 hours.',
+    tone: 'bg-emerald-50 text-emerald-700',
+    tilt: '-rotate-1',
+  },
+];
+
+const notePositions = ['lg:left-0 lg:top-4', 'lg:right-0 lg:top-24', 'lg:left-16 lg:top-[300px]'];
+const stampText = `HONEST ADVICE • FAIR PRICES • SINCE ${business.since} • `;
 
 const About: React.FC = () => {
+  const root = useRef<HTMLElement>(null);
+
+  useLayoutEffect(() => {
+    const mm = gsap.matchMedia(root);
+    mm.add(MOTION_OK, () => {
+      const trigger = { trigger: root.current, start: 'top 70%' };
+
+      gsap.from('.about-copy', { y: 30, opacity: 0, duration: 0.8, ease: 'power3.out', stagger: 0.1, scrollTrigger: trigger });
+      gsap.fromTo('.about-mark', { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: 'power2.out', delay: 0.5, scrollTrigger: trigger });
+      gsap.from('.about-stamp', { scale: 0, rotate: -120, duration: 1, ease: 'back.out(1.6)', delay: 0.4, scrollTrigger: trigger });
+
+      // Notes drop onto the board one by one
+      gsap.from('.about-note', {
+        y: -80,
+        opacity: 0,
+        rotate: (i: number) => [-14, 12, -10][i] ?? 0,
+        duration: 0.9,
+        ease: 'back.out(1.7)',
+        stagger: 0.18,
+        scrollTrigger: { trigger: '.about-notes', start: 'top 80%' },
+      });
+
+      gsap.fromTo(
+        '.about-arrow path',
+        { strokeDashoffset: 200 },
+        { strokeDashoffset: 0, duration: 1, ease: 'power2.inOut', delay: 0.9, scrollTrigger: trigger }
+      );
+    });
+    return () => mm.revert();
+  }, []);
+
   return (
-    <section id="about" className="py-20 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false , amount: 0.3 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">About Chitwan Computer</h2>
-          <div className="w-20 h-1 bg-blue-600 mx-auto mb-6"></div>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Established in 2010, Chitwan Computer has been the region's leading technology provider, 
-            offering high-quality computer hardware, expert repair services, and custom solutions.
+    <section id="about" ref={root} className="overflow-hidden bg-white py-20 lg:py-28">
+      <div className="mx-auto grid max-w-7xl items-center gap-16 px-4 sm:px-6 lg:grid-cols-12 lg:gap-10 lg:px-8">
+        {/* Story */}
+        <div className="relative lg:col-span-6">
+          <h2 className="about-copy font-display text-3xl font-semibold leading-[1.1] text-ink sm:text-4xl lg:text-[2.9rem]">
+            A local store built on{' '}
+            <span className="relative inline-block whitespace-nowrap">
+              <span
+                aria-hidden="true"
+                className="about-mark absolute -inset-x-1 bottom-1 top-[45%] origin-left -rotate-1 rounded-sm bg-orange-200"
+              />
+              <span className="relative">honest advice</span>
+            </span>{' '}
+            since {business.since}.
+          </h2>
+
+          <p className="about-copy mt-6 max-w-lg text-lg leading-relaxed text-slate-700">
+            We help people across Chitwan pick the right technology and keep it running, with fair prices
+            and straight answers.
           </p>
-        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[{
-            icon: <Shield size={32} className="text-blue-600" />,
-            title: 'Quality Assurance',
-            desc: 'We stand behind every product and service with our comprehensive warranty and support program.'
-          },
-          {
-            icon: <Award size={32} className="text-blue-600" />,
-            title: 'Certified Experts',
-            desc: 'Our team of technicians holds certifications from major manufacturers including HP, Dell, and Lenovo.'
-          },
-          {
-            icon: <Clock size={32} className="text-blue-600" />,
-            title: 'Rapid Service',
-            desc: 'We understand the importance of your technology. Most repairs are completed within 24-48 hours.'
-          }].map((item, idx) => (
-            <motion.div
-              key={idx}
-              className="bg-white p-8 rounded-xl shadow-md transform hover:shadow-lg transition duration-300"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: false , amount: 0.3 }}
-              transition={{ delay: 0.1 * idx, duration: 0.5 }}
-            >
-              <div className="flex justify-center mb-4">
-                <div className="bg-blue-100 p-3 rounded-full">
-                  {item.icon}
-                </div>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800 text-center mb-3">{item.title}</h3>
-              <p className="text-gray-600 text-center">{item.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-
-        <motion.div
-          className="mt-16 bg-white rounded-xl shadow-md overflow-hidden"
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false , amount: 0.3 }}
-          transition={{ duration: 0.7 }}
-        >
-          <div className="md:flex">
-            <div className="md:w-1/2">
-              <img 
-                src={ccspic}
-                alt="Chitwan Computer Team" 
-                className="h-full w-full object-cover object-center"
-                loading="lazy"
-                style={{ maxWidth: '100%', height: 'auto' }}
+          <div className="about-copy mt-10 flex items-center gap-6">
+            {/* Rotating stamp */}
+            <div className="about-stamp relative h-32 w-32 flex-shrink-0">
+              <svg viewBox="0 0 120 120" className="h-full w-full animate-[spin_18s_linear_infinite] motion-reduce:animate-none">
+                <defs>
+                  <path id="stamp-circle" d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0" />
+                </defs>
+                <text className="fill-ink text-[9.5px] font-semibold">
+                  <textPath href="#stamp-circle" textLength="286" lengthAdjust="spacing">
+                    {stampText}
+                  </textPath>
+                </text>
+              </svg>
+              <img
+                src={logo}
+                alt=""
+                className="absolute left-1/2 top-1/2 h-14 w-14 -translate-x-1/2 -translate-y-1/2 rounded-full object-contain"
               />
             </div>
-            <div className="p-8 md:w-1/2 flex items-center">
-              <div>
-                <h3 className="text-4xl font-bold text-gray-800 mb-4">Our Mission</h3>
-                <p className="text-gray-600 mb-6 text-xl text-justify">
-                  At Chitwan Computer, our mission is to provide the highest quality technology solutions to individuals and businesses 
-                  throughout Chitwan and beyond. We believe in honest advice, fair pricing, and exceptional customer service.
-                </p>
-                <p className="text-gray-600 text-xl text-justify">
-                  Whether you're looking for a simple repair or a complete technology overhaul, 
-                  our team is committed to finding the perfect solution for your needs and budget.
-                </p>
-              </div>
-            </div>
+            <p className="font-display text-lg leading-snug text-slate-700">
+              Same shop, same people,
+              <br />
+              <span className="font-semibold text-ink">{new Date().getFullYear() - business.since}+ years</span> later.
+            </p>
           </div>
-        </motion.div>
+
+          {/* Hand-drawn arrow toward the notes */}
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 120 80"
+            className="about-arrow absolute -right-4 bottom-6 hidden h-20 w-28 text-primary-500 lg:block"
+          >
+            <path
+              d="M6 60 C 30 70, 70 66, 96 30 M84 30 L97 28 L95 42"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeDasharray="200"
+            />
+          </svg>
+        </div>
+
+        {/* Sticky notes */}
+        <ul className="about-notes relative grid gap-8 sm:grid-cols-2 lg:col-span-6 lg:block lg:h-[500px]">
+          {notes.map(({ icon: Icon, title, text, tone, tilt }, i) => (
+            <li key={title} className={`about-note lg:absolute lg:w-[300px] ${notePositions[i]}`}>
+              <div
+                className={`relative ${tilt} rounded-lg border border-slate-200 bg-white p-6 shadow-[0_14px_30px_-14px_rgba(15,23,42,0.3)] transition-transform duration-300 hover:-translate-y-1 hover:rotate-0`}
+              >
+                {/* Tape strip */}
+                <span
+                  aria-hidden="true"
+                  className="absolute -top-3 left-1/2 h-6 w-16 -translate-x-1/2 rotate-2 rounded-sm bg-slate-300/70"
+                />
+                <span className={`flex h-11 w-11 items-center justify-center rounded-lg ${tone}`}>
+                  <Icon size={21} />
+                </span>
+                <h3 className="mt-4 font-display text-lg font-semibold text-ink">{title}</h3>
+                <p className="mt-1.5 text-[15px] leading-relaxed text-slate-600">{text}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

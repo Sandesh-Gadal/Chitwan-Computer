@@ -1,157 +1,231 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Phone, Clock, MapPin, ClipboardList } from 'lucide-react';
+import { useEnquiry } from '../context/EnquiryContext';
+import { motion, AnimatePresence, useScroll, useSpring } from 'motion/react';
 import logo from '../assets/logo.png';
-import { useNavigate ,  useLocation} from "react-router-dom";
+import { useNavigate, useLocation } from 'react-router-dom';
+import { business } from '../data/business';
 
-const Navbar: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-
-  const goToProducts = () => {
-    navigate("/products");
-    setIsOpen(false);
-  };
-
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
-
-const scrollToSection = (id: string) => {
-  if (location.pathname !== "/") {
-    navigate("/");
-    setTimeout(() => {
-      document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-    }, 300);
-  } else {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-  }
-
-  setIsOpen(false);
-};
-
-
-
-
-
-  const navItems = [
+const navItems = [
   { id: 'home', label: 'Home' },
   { id: 'about', label: 'About' },
   { id: 'services', label: 'Services' },
   { id: 'products', label: 'Products' },
-  { id: 'testimonials', label: 'Testimonials' },
+  { id: 'testimonials', label: 'Reviews' },
   { id: 'contact', label: 'Contact' },
 ];
 
+const Navbar: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [activeId, setActiveId] = useState('home');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isHome = location.pathname === '/';
+  const enquiry = useEnquiry();
+  const { scrollYProgress } = useScroll();
+  const progress = useSpring(scrollYProgress, { stiffness: 200, damping: 30, restDelta: 0.001 });
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 40);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Track which section is in view
+  useEffect(() => {
+    if (!isHome) {
+      setActiveId(location.pathname.startsWith('/products') ? 'products' : '');
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActiveId(entry.target.id);
+        });
+      },
+      { rootMargin: '-40% 0px -55% 0px' }
+    );
+    navItems.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, [isHome, location.pathname]);
+
+  const goToProducts = () => {
+    navigate('/products');
+    window.scrollTo({ top: 0 });
+    setIsOpen(false);
+  };
+
+  const scrollToSection = (id: string) => {
+    if (!isHome) {
+      navigate('/');
+      setTimeout(() => {
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
+    } else {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    }
+    setIsOpen(false);
+  };
+
+  const handleClick = (id: string) => (id === 'products' ? goToProducts() : scrollToSection(id));
 
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 bg-white shadow-md`}>
-    {/* <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md' : 'bg-transparent'}`}> */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
-          <div className="flex items-center">
-            <img
-              src={logo}
-              alt="Chitwan Computer Logo"
-              className="w-12 h-12 mr-4 object-contain rounded-md"
-            />
-            <span className={`text-xl lg:text-3xl font-bold text-gray-800 ${
-        isScrolled
-          ? 'text-gray-800 hover:text-blue-600'
-          : 'text-gray-800 hover:text-blue-300'
-      }`}>Chitwan Computer</span>
-          </div>
-          <div className="hidden md:block">
-           <div className="ml-10 flex items-center space-x-4">
-  {/* {navItems.map((item) => (
-    <button
-      key={item.id}
-      onClick={() => scrollToSection(item.id)}
-      className={`px-3 py-2 text-xl rounded-md text-sm font-medium transition-colors ${
-        isScrolled
-          ? 'text-gray-800 hover:text-blue-600'
-          : 'text-white hover:text-blue-300'
-      }`}
-    >
-      {item.label}
-    </button>
-  ))} */}
-  {navItems.map((item) => (
-  item.id === "products" ? (
-    // PRODUCTS → goToProducts()
-    <button
-      key={item.id}
-      onClick={goToProducts}
-      className={`px-3 py-2 text-xl rounded-md text-sm font-medium transition-colors ${
-        isScrolled
-          ? "text-gray-800 hover:text-blue-600"
-          : "text-gray-800 hover:text-blue-300"
-      }`}
-    >
-      {item.label}
-    </button>
-  ) : (
-    // Others → scrollToSection()
-    <button
-      key={item.id}
-      onClick={() => scrollToSection(item.id)}
-      className={`px-3 py-2 text-xl rounded-md text-sm font-medium transition-colors ${
-        isScrolled
-          ? "text-gray-800 hover:text-blue-600"
-          : "text-gray-800 hover:text-blue-300"
-      }`}
-    >
-      {item.label}
-    </button>
-  )
-))}
-
-</div>
-
-
-          </div>
-          <div className="md:hidden">
-            <button
-              onClick={toggleMenu}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-800 hover:text-blue-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+    <>
+      {/* Store info strip */}
+      <div className="hidden bg-ink text-slate-300 md:block">
+        <div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-4 text-xs sm:px-6 lg:px-8">
+          <div className="flex items-center gap-6">
+            <span className="flex items-center gap-2">
+              <Clock size={13} className="text-slate-400" />
+              {business.hours.days}, {business.hours.time}
+            </span>
+            <a
+              href={business.mapsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-2 transition-colors hover:text-white"
             >
-              <span className="sr-only">Open main menu</span>
-              {isOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+              <MapPin size={13} className="text-slate-400" />
+              {business.address.line1}, Chitwan
+            </a>
           </div>
+          <a href={business.phones[0].href} className="flex items-center gap-2 transition-colors hover:text-white">
+            <Phone size={13} className="text-slate-400" />
+            {business.phones[0].label}
+          </a>
         </div>
       </div>
 
-      {/* Mobile menu */}
-      <div className={`md:hidden ${isOpen ? 'block' : 'hidden'}`}>
-        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white shadow-lg">
-          <button onClick={() => scrollToSection('home')} className="text-gray-800 hover:bg-gray-100 block px-3 py-2 rounded-md text-base font-medium w-full text-left">Home</button>
-          <button onClick={() => scrollToSection('about')} className="text-gray-800 hover:bg-gray-100 block px-3 py-2 rounded-md text-base font-medium w-full text-left">About</button>
-          <button onClick={() => scrollToSection('services')} className="text-gray-800 hover:bg-gray-100 block px-3 py-2 rounded-md text-base font-medium w-full text-left">Services</button>
-          <button  onClick={goToProducts} className="text-gray-800 hover:bg-gray-100 block px-3 py-2 rounded-md text-base font-medium w-full text-left">Products</button>
-          <button onClick={() => scrollToSection('testimonials')} className="text-gray-800 hover:bg-gray-100 block px-3 py-2 rounded-md text-base font-medium w-full text-left">Testimonials</button>
-          <button onClick={() => scrollToSection('contact')} className="text-gray-800 hover:bg-gray-100 block px-3 py-2 rounded-md text-base font-medium w-full text-left">Contact</button>
+      <nav
+        className={`sticky top-0 z-50 border-b bg-white/90 backdrop-blur-md transition-shadow duration-300 ${
+          isScrolled || isOpen ? 'border-slate-200 shadow-[0_1px_12px_rgba(15,23,42,0.06)]' : 'border-transparent'
+        }`}
+      >
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-[72px] items-center justify-between">
+            <button onClick={() => scrollToSection('home')} className="flex items-center gap-3" aria-label="Chitwan Computer home">
+              <img src={logo} alt="" className="h-10 w-10 rounded-md object-contain" />
+              <span className="flex flex-col items-start leading-none">
+                <span className="font-display text-lg font-semibold tracking-tight text-ink">Chitwan Computer</span>
+                <span className="mt-1 text-[11px] font-medium uppercase tracking-[0.16em] text-slate-600">
+                  Since {business.since}
+                </span>
+              </span>
+            </button>
+
+            <div className="hidden items-center gap-8 lg:flex">
+              {navItems.map((item) => {
+                const active = activeId === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleClick(item.id)}
+                    className={`relative py-2 text-[15px] font-medium transition-colors duration-200 ${
+                      active ? 'text-ink' : 'text-slate-600 hover:text-ink'
+                    }`}
+                  >
+                    {item.label}
+                    {active && (
+                      <motion.span
+                        layoutId="nav-underline"
+                        className="absolute -bottom-0.5 left-0 right-0 h-[2px] rounded-full bg-primary-500"
+                        transition={{ type: 'spring', stiffness: 420, damping: 36 }}
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={enquiry.open}
+                aria-label={`Enquiry list, ${enquiry.count} ${enquiry.count === 1 ? 'item' : 'items'}`}
+                title="Enquiry list"
+                className="relative inline-flex h-10 w-10 items-center justify-center rounded-md text-ink transition-colors hover:bg-slate-100"
+              >
+                <ClipboardList size={21} />
+                {enquiry.count > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-orange-500 px-1 text-[11px] font-bold text-white">
+                    {enquiry.count}
+                  </span>
+                )}
+              </button>
+              <button
+                onClick={() => scrollToSection('contact')}
+                className="hidden rounded-md bg-ink px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-primary-500 lg:inline-flex"
+              >
+                Get a Quote
+              </button>
+
+              <button
+                onClick={() => setIsOpen((o) => !o)}
+                aria-expanded={isOpen}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-md text-ink transition-colors hover:bg-slate-100 lg:hidden"
+              >
+                <span className="sr-only">{isOpen ? 'Close menu' : 'Open main menu'}</span>
+                {isOpen ? <X size={22} /> : <Menu size={22} />}
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-    </nav>
+
+        {/* Scroll progress */}
+        <motion.div
+          aria-hidden="true"
+          style={{ scaleX: progress }}
+          className="absolute inset-x-0 -bottom-px h-[2px] origin-left bg-primary-500"
+        />
+
+        {/* Mobile menu */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              className="overflow-hidden border-t border-slate-200 bg-white lg:hidden"
+            >
+              <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
+                {navItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleClick(item.id)}
+                    className={`flex w-full items-center justify-between border-b border-slate-100 py-3.5 text-left text-base font-medium last:border-0 ${
+                      activeId === item.id ? 'text-primary-500' : 'text-ink'
+                    }`}
+                  >
+                    {item.label}
+                    {activeId === item.id && <span className="h-1.5 w-1.5 rounded-full bg-primary-500" />}
+                  </button>
+                ))}
+                <div className="mt-3 grid grid-cols-2 gap-2 pb-2">
+                  <a
+                    href={business.phones[0].href}
+                    className="flex items-center justify-center gap-2 rounded-md border border-slate-300 py-3 text-sm font-semibold text-ink"
+                  >
+                    <Phone size={16} /> Call us
+                  </a>
+                  <button
+                    onClick={() => scrollToSection('contact')}
+                    className="rounded-md bg-ink py-3 text-sm font-semibold text-white"
+                  >
+                    Get a Quote
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </nav>
+    </>
   );
 };
 
-export default Navbar; 
+export default Navbar;
