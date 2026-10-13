@@ -1,6 +1,7 @@
 import React, { useLayoutEffect, useRef } from 'react';
 import { ArrowRight, Phone } from 'lucide-react';
-import storePhoto from '../assets/Chitwancomputer.png';
+import shelves1600 from '../assets/store-shelves-1600.jpg';
+import shelves900 from '../assets/store-shelves-900.jpg';
 import { business } from '../data/business';
 import { gsap, MOTION_OK } from '../lib/gsap';
 
@@ -148,13 +149,19 @@ const Hero: React.FC = () => {
               <div className="hero-frame absolute -right-3 -top-3 hidden h-full w-full rounded-lg border-2 border-primary-500/25 sm:block" />
               <div className="hero-media relative overflow-hidden rounded-lg shadow-[0_24px_60px_-24px_rgba(15,23,42,0.45)]">
                 <img
-                  src={storePhoto}
-                  alt="Inside the Chitwan Computer store at Lionschowk, Narayanghat"
-                  className="hero-img aspect-[4/3] w-full scale-110 object-cover"
+                  src={shelves1600}
+                  srcSet={`${shelves900} 900w, ${shelves1600} 1600w`}
+                  sizes="(min-width: 1024px) 640px, 100vw"
+                  width={1600}
+                  height={900}
+                  // Lowercase attribute: React 18 doesn't know the camelCase prop yet
+                  {...{ fetchpriority: 'high' }}
+                  alt="Shelves at Chitwan Computer stocked with UNV CCTV cameras, NVRs, UPS units, monitors and PC components"
+                  className="hero-img aspect-[3/2] w-full scale-110 object-cover"
                 />
               </div>
               <span className="hero-tag absolute bottom-4 left-4 rounded bg-ink px-3 py-1.5 text-xs font-semibold text-white shadow-md">
-                Graphics cards, CCTV, printers — in stock
+                CCTV, NVRs, UPS &amp; PC parts — in stock
               </span>
             </div>
             <figcaption className="mt-4 text-sm text-slate-600">Our showroom at {business.address.line1}.</figcaption>

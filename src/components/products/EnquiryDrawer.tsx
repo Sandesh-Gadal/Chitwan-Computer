@@ -106,8 +106,11 @@ const EnquiryDrawer: React.FC = () => {
                         >
                           {item.name}
                         </Link>
-                        <p className="mt-1 text-sm text-slate-700">
-                          {item.price !== null ? formatPrice(item.price) : 'Call for price'}
+                        <p className="mt-1 flex flex-wrap items-baseline gap-x-2 text-sm">
+                          <span className="font-medium text-ink">{item.price !== null ? formatPrice(item.price) : 'Call for price'}</span>
+                          {item.mrp && item.price !== null && item.mrp > item.price && (
+                            <s className="text-xs text-slate-500">{formatPrice(item.mrp)}</s>
+                          )}
                         </p>
                         <div className="mt-auto flex items-center justify-between pt-2">
                           <div className="flex items-center rounded-md border border-slate-300">

@@ -2,14 +2,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ClipboardCheck, ClipboardPlus } from 'lucide-react';
 import { useEnquiry } from '../../context/EnquiryContext';
-import { Product, formatPrice, productImages, stockLabel, stockStatus } from '../../api/products';
+import { Product, productImages, stockLabel, stockStatus } from '../../api/products';
+import PriceTag from './PriceTag';
 
 const dotColor = { in: 'bg-emerald-500', low: 'bg-amber-500', out: 'bg-red-500' };
 const textColor = { in: 'text-emerald-700', low: 'text-amber-700', out: 'text-red-600' };
 
 const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
   const status = stockStatus(product.quantity);
-  const price = formatPrice(product.price);
   const [cover, alternate] = productImages(product);
   const enquiry = useEnquiry();
   const saved = enquiry.has(product.id);
@@ -76,9 +76,9 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
         <h3 className="mt-1 line-clamp-2 font-display text-base font-semibold leading-snug text-ink transition-colors group-hover:text-primary-600 sm:text-lg">
           {product.name}
         </h3>
-        <p className="mt-auto pt-2 text-[15px] font-semibold text-ink">
-          {price ?? <span className="font-medium text-slate-600">Call for price</span>}
-        </p>
+        <div className="mt-auto pt-2">
+          <PriceTag product={product} />
+        </div>
       </div>
     </Link>
   );

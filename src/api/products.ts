@@ -28,7 +28,10 @@ export interface Product {
   name: string;
   label: string | null;
   description: string | null;
+  /** Selling (sale) price */
   price: string;
+  /** Maximum retail price, shown crossed out when higher than the sale price */
+  mrp?: string | null;
   quantity: number;
   image: string;
   category_id: number;
@@ -193,6 +196,23 @@ const findCached = (queryClient: ReturnType<typeof useQueryClient>, id: number):
 export const priceValue = (product: Pick<Product, 'price'>): number | null => {
   const value = parseFloat(product.price);
   return Number.isFinite(value) && value > 0 ? value : null;
+};
+
+export interface PriceInfo {
+  price: number;
+  /** Only set when it's higher than the sale price */
+  mrp: number | null;
+  save: number;
+  percentOff: number;
+}
+
+/** Sale price plus the MRP and discount when there is one; null when the product has no price */
+export const priceInfo = (product: Pick<Product, 'price' | 'mrp'>): PriceInfo | null => {
+  const price = priceValue(product);
+  if (price === null) return null;
+  const mrp = parseFloat(product.mrp ?? '');
+  if (!Number.isFinite(mrp) || mrp <= price) return { price, mrp: null, save: 0, percentOff: 0 };
+  return { price, mrp, save: mrp - price, percentOff: Math.round(((mrp - price) / mrp) * 100) };
 };
 
 export const useBrands = () =>

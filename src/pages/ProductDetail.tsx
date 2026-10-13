@@ -5,6 +5,7 @@ import { ChevronRight, Phone, MapPin, Clock, Share2, ClipboardPlus, ClipboardChe
 import ProductCard from '../components/products/ProductCard';
 import WhatsAppIcon from '../components/ui/WhatsAppIcon';
 import ProductGallery from '../components/products/ProductGallery';
+import PriceTag from '../components/products/PriceTag';
 import {
   Product,
   useProduct,
@@ -15,6 +16,7 @@ import {
   stockLabel,
   stockStatus,
   storageUrl,
+  priceInfo,
 } from '../api/products';
 import { useEnquiry } from '../context/EnquiryContext';
 import { useRecentlyViewed } from '../hooks/useRecentlyViewed';
@@ -93,11 +95,14 @@ const ProductDetail: React.FC = () => {
   }
 
   const price = formatPrice(product.price);
+  const pricing = priceInfo(product);
   const status = stockStatus(product.quantity);
   const images = productImages(product);
   const inList = enquiryList.has(product.id);
   const pageUrl = typeof window !== 'undefined' ? window.location.href : '';
-  const enquiry = `Hi Chitwan Computer, I'm interested in "${product.name}"${price ? ` (${price})` : ''}. ${
+  const enquiry = `Hi Chitwan Computer, I'm interested in "${product.name}"${
+    price ? ` (${price}${pricing?.mrp ? `, MRP ${formatPrice(pricing.mrp)}` : ''})` : ''
+  }. ${
     status === 'out' ? 'When will it be back in stock?' : 'Is it available?'
   }\n${pageUrl}`;
 
@@ -166,11 +171,9 @@ const ProductDetail: React.FC = () => {
             </div>
             <h1 className="mt-2 font-display text-3xl font-semibold leading-tight text-ink sm:text-4xl">{product.name}</h1>
 
-            <div className="mt-6 flex flex-wrap items-center gap-3">
-              <p className="font-display text-3xl font-semibold text-ink">
-                {price ?? <span className="text-2xl text-slate-600">Call for price</span>}
-              </p>
-              <span className={`rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${stockStyles[status]}`}>
+            <div className="mt-6 space-y-3">
+              <PriceTag product={product} size="detail" />
+              <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${stockStyles[status]}`}>
                 {stockLabel[status]}
               </span>
             </div>

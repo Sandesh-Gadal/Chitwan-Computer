@@ -1,10 +1,12 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Product, priceValue, productImages } from '../api/products';
+import { Product, priceInfo, productImages } from '../api/products';
 
 export interface EnquiryItem {
   id: number;
   name: string;
   price: number | null;
+  /** MRP when it's higher than the price */
+  mrp?: number | null;
   image: string | null;
   qty: number;
 }
@@ -56,7 +58,8 @@ export const EnquiryProvider: React.FC<{ children: React.ReactNode }> = ({ child
             {
               id: product.id,
               name: product.name,
-              price: priceValue(product),
+              price: priceInfo(product)?.price ?? null,
+              mrp: priceInfo(product)?.mrp ?? null,
               image: productImages(product)[0] ?? null,
               qty: 1,
             },
