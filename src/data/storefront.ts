@@ -36,7 +36,7 @@ const photoSlides: Slide[] = [
     eyebrow: 'Custom builds',
     title: 'Tell us what you play or render. We’ll build around it.',
     text: 'Parts picked for your budget, assembled and stress-tested in our workshop before you collect.',
-    cta: { label: 'Browse desktops', to: '/products?category=desktops' },
+    cta: { label: 'Build yours in 3D', to: '/build-pc' },
   },
   {
     id: 'workspace',

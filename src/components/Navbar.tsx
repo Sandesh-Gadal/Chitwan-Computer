@@ -186,6 +186,11 @@ const Navbar: React.FC = () => {
                     </NavLink>
                   </li>
                   <li>
+                    <Link to="/build-pc" className="flex items-center justify-between border-b border-slate-100 py-3 font-semibold text-primary-600">
+                      Build your PC in 3D <ChevronRight size={16} />
+                    </Link>
+                  </li>
+                  <li>
                     <Link to="/products?view=all" className="flex items-center justify-between border-b border-slate-100 py-3 font-medium text-ink">
                       All products <ChevronRight size={16} className="text-slate-400" />
                     </Link>

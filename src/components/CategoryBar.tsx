@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
-import { ChevronDown, LayoutGrid } from 'lucide-react';
+import { ChevronDown, Cpu, LayoutGrid } from 'lucide-react';
 import { Category, useFacets } from '../api/products';
 
 // Shown in the bar (fewer on smaller laptops); the rest are in the "All products" list
-const CATEGORY_LINKS = 6;
+const CATEGORY_LINKS = 5;
 const CATEGORY_LINKS_LG = 4;
 const OPEN_DELAY = 120;
 const CLOSE_DELAY = 180;
@@ -175,6 +175,16 @@ const CategoryBar: React.FC<{ categories: Category[] }> = ({ categories }) => {
         </ul>
 
         <ul className="flex flex-shrink-0 items-center gap-6 text-sm text-slate-600" onMouseEnter={() => schedule(null)}>
+          <li>
+            <Link
+              to="/build-pc"
+              className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 font-semibold transition-colors ${
+                location.pathname === '/build-pc' ? 'bg-primary-500 text-white' : 'bg-primary-50 text-primary-600 hover:bg-primary-500 hover:text-white'
+              }`}
+            >
+              <Cpu size={15} /> Build your PC
+            </Link>
+          </li>
           {pages.map((p) => (
             <li key={p.hash}>
               <Link to={`/about#${p.hash}`} className="transition-colors hover:text-ink">
