@@ -3,14 +3,20 @@ export const business = {
   name: 'Chitwan Computer',
   since: 2010,
   phones: [
-    { label: '+977 9847238888', href: 'tel:+9779847238888' },
-    { label: '056-590714', href: 'tel:056590714' },
+    { label: '+977 9847238888', href: 'tel:+9779847238888', kind: 'Mobile' },
+    { label: '056-590714', href: 'tel:+97756590714', kind: 'Landline' },
   ],
   whatsapp: '9779847238888',
+  /** Facebook page username, for Messenger chat links (m.me/<username>) */
+  messenger: 'chitwancomputer',
   emails: ['chitwancomputer@gmail.com', 'ccsservices40@gmail.com'],
   address: { line1: 'Lionschowk, Narayanghat', line2: 'Chitwan, Nepal' },
   mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Chitwan+Computer+Lionschowk+Narayanghat',
   hours: { days: 'Sunday – Friday', time: '10:00 AM – 6:00 PM' },
+  /** Same hours as numbers, for the live open/closed badge. Days: 0 = Sunday … 6 = Saturday */
+  schedule: { days: [0, 1, 2, 3, 4, 5], opens: 10, closes: 18 },
+  /** Days the store is shut on a normal working day (holidays), YYYY-MM-DD. The badge shows "Closed" on these. */
+  closures: [] as string[],
   socials: {
     facebook: 'https://www.facebook.com/chitwancomputer',
     instagram: 'https://www.instagram.com/chitwancomputer',

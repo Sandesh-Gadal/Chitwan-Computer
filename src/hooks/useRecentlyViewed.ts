@@ -12,6 +12,9 @@ const read = (): number[] => {
   }
 };
 
+/** Products the visitor has opened, most recent first */
+export const readRecentlyViewed = read;
+
 /**
  * Records the current product and returns the ids of the others the visitor
  * looked at before it, most recent first.

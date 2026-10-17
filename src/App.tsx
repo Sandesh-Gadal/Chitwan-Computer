@@ -1,12 +1,17 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
 import CctvCamera from './components/CctvCamera';
+import ScrollManager from './components/ui/ScrollManager';
+import MobileActionBar from './components/ui/MobileActionBar';
+import FloatingContact from './components/ui/FloatingContact';
+import { FestivalFloaters } from './components/festival/FestivalPieces';
 import EnquiryDrawer from './components/products/EnquiryDrawer';
 import { EnquiryProvider } from './context/EnquiryContext';
 import Footer from './components/Footer';
 import Home from './pages/Home';
+import Store from './pages/Store';
 import Products from './components/ProductPage';
 import ProductDetail from './pages/ProductDetail';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -28,25 +33,26 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  useEffect(() => {
-    document.title = "Chitwan Computer - Your Trusted Tech Partner";
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <EnquiryProvider>
       <div className="font-sans">
+        <ScrollManager />
         <Navbar />
         <CctvCamera />
+        <FestivalFloaters />
 
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Store />} />
+          <Route path="/about" element={<Home />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetail />} />
         </Routes>
 
         <Footer />
         <EnquiryDrawer />
+        <MobileActionBar />
+        <FloatingContact />
         
         {/* Add React Query Devtools for development */}
         {process.env.NODE_ENV === 'development' && (

@@ -1,4 +1,5 @@
-import React, { useLayoutEffect, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { gsap, MOTION_OK } from '../lib/gsap';
 
 // Side view of a Uniview-style bullet camera on a wall bracket, lens facing left.
@@ -18,6 +19,26 @@ const UNV_PATHS = [
 const CctvCamera: React.FC = () => {
   const svgRef = useRef<SVGSVGElement>(null);
   const headRef = useRef<SVGGElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const navigate = useNavigate();
+
+  // Hang just below the header, whose height changes with the greeting bar and as the page scrolls
+  useEffect(() => {
+    const place = () => {
+      const header = document.querySelector('header');
+      if (buttonRef.current && header) buttonRef.current.style.top = `${header.getBoundingClientRect().bottom + 12}px`;
+    };
+    place();
+    window.addEventListener('scroll', place, { passive: true });
+    window.addEventListener('resize', place);
+    const observer = new ResizeObserver(place);
+    observer.observe(document.body);
+    return () => {
+      window.removeEventListener('scroll', place);
+      window.removeEventListener('resize', place);
+      observer.disconnect();
+    };
+  }, []);
 
   useLayoutEffect(() => {
     const svg = svgRef.current;
@@ -59,11 +80,12 @@ const CctvCamera: React.FC = () => {
 
   return (
     <button
+      ref={buttonRef}
       type="button"
-      onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
+      onClick={() => navigate('/products?category=cctv-cameras')}
       title="Need CCTV? We supply and install it."
-      aria-label="Ask about CCTV installation"
-      className="fixed right-0 top-[112px] z-40 hidden w-[140px] drop-shadow-[0_10px_14px_rgba(15,23,42,0.2)] md:block xl:w-[165px]"
+      aria-label="Shop CCTV cameras"
+      className="fixed right-0 top-[164px] z-40 hidden w-[140px] drop-shadow-[0_10px_14px_rgba(15,23,42,0.2)] md:block xl:w-[165px]"
     >
       <svg ref={svgRef} viewBox={`0 0 ${VIEW_W} 110`} className="w-full overflow-visible">
         <defs>

@@ -2,7 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ClipboardCheck, ClipboardPlus } from 'lucide-react';
 import { useEnquiry } from '../../context/EnquiryContext';
-import { Product, productImages, stockLabel, stockStatus } from '../../api/products';
+import { Product, priceInfo, productImages, stockLabel, stockStatus } from '../../api/products';
+import { PinnedTag } from '../festival/FestivalPieces';
+import { useFestival } from '../festival/registry';
 import PriceTag from './PriceTag';
 
 const dotColor = { in: 'bg-emerald-500', low: 'bg-amber-500', out: 'bg-red-500' };
@@ -13,6 +15,8 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
   const [cover, alternate] = productImages(product);
   const enquiry = useEnquiry();
   const saved = enquiry.has(product.id);
+  const festive = useFestival();
+  const percentOff = priceInfo(product)?.percentOff ?? 0;
 
   const toggleEnquiry = (e: React.MouseEvent) => {
     // The card itself is a link; this button shouldn't navigate
@@ -62,6 +66,12 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
         >
           {saved ? <ClipboardCheck size={17} /> : <ClipboardPlus size={17} />}
         </button>
+        {festive && percentOff > 0 && (
+          <span className="absolute bottom-3 left-3">
+            {/* Alternate the tilt so a grid of tags looks hand-pinned */}
+            <PinnedTag tilt={product.id % 2 ? -5 : 4}>{percentOff}% off</PinnedTag>
+          </span>
+        )}
         {product.label && (
           <span className="absolute right-3 top-3 rounded bg-orange-500 px-2 py-1 text-[11px] font-semibold text-white">
             {product.label}

@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { ChevronRight, Phone, MapPin, Clock, Share2, ClipboardPlus, ClipboardCheck } from 'lucide-react';
 import ProductCard from '../components/products/ProductCard';
 import WhatsAppIcon from '../components/ui/WhatsAppIcon';
@@ -21,6 +20,10 @@ import {
 import { useEnquiry } from '../context/EnquiryContext';
 import { useRecentlyViewed } from '../hooks/useRecentlyViewed';
 import { business, whatsappLink } from '../data/business';
+import Seo, { breadcrumbSchema } from '../components/Seo';
+import { PinnedTag } from '../components/festival/FestivalPieces';
+import { useFestival } from '../components/festival/registry';
+import { SITE_URL } from '../data/seo';
 
 const RELATED_COUNT = 4;
 
@@ -36,6 +39,7 @@ const ProductDetail: React.FC = () => {
   const { data: product, isLoading, isError } = useProduct(productId);
   const enquiryList = useEnquiry();
   const recentIds = useRecentlyViewed(product?.id);
+  const festive = useFestival();
 
   // Small, targeted requests for the rows under the product
   const brandSlug = product?.brand?.slug;
@@ -116,16 +120,56 @@ const ProductDetail: React.FC = () => {
 
   return (
     <section className="min-h-screen bg-paper pb-24">
-      <Helmet>
-        <title>{`${product.name} | Chitwan Computer`}</title>
-        <meta name="description" content={(product.description ?? product.name).slice(0, 155)} />
-        <meta property="og:title" content={product.name} />
-        <meta property="og:image" content={productImage(product)} />
-      </Helmet>
+      <Seo
+        title={`${product.name} Price in Nepal | Chitwan Computer`}
+        description={`${product.name}${price ? ` for ${price}` : ''} at Chitwan Computer, Narayanghat. ${
+          stockLabel[status]
+        }. ${(product.description ?? '').replace(/\s+/g, ' ').slice(0, 90)}`}
+        path={`/products/${product.id}`}
+        image={productImage(product)}
+        type="product"
+        schema={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: product.name,
+            image: images,
+            description: product.description ?? product.name,
+            sku: String(product.id),
+            ...(product.brand ? { brand: { '@type': 'Brand', name: product.brand.name } } : {}),
+            ...(product.category ? { category: product.category.name } : {}),
+            ...(pricing
+              ? {
+                  offers: {
+                    '@type': 'Offer',
+                    url: `${SITE_URL}/products/${product.id}`,
+                    priceCurrency: 'NPR',
+                    price: pricing.price,
+                    availability: status === 'out' ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
+                    itemCondition: 'https://schema.org/NewCondition',
+                    seller: { '@id': `${SITE_URL}/#store` },
+                  },
+                }
+              : {}),
+          },
+          breadcrumbSchema([
+            { name: 'Home', path: '/' },
+            { name: 'Products', path: '/products' },
+            ...(product.category
+              ? [{ name: product.category.name, path: `/products?category=${encodeURIComponent(product.category.slug)}` }]
+              : []),
+            { name: product.name, path: `/products/${product.id}` },
+          ]),
+        ]}
+      />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 py-6 text-sm text-slate-600">
+          <Link to="/" className="hover:text-ink">
+            Home
+          </Link>
+          <ChevronRight size={14} className="text-slate-400" />
           <Link to="/products" className="hover:text-ink">
             Products
           </Link>
@@ -172,6 +216,13 @@ const ProductDetail: React.FC = () => {
             <h1 className="mt-2 font-display text-3xl font-semibold leading-tight text-ink sm:text-4xl">{product.name}</h1>
 
             <div className="mt-6 space-y-3">
+              {festive && pricing?.mrp && (
+                <div className="pb-1 pt-2">
+                  <PinnedTag size="md" tilt={-3}>
+                    {festive.festival.dealLabel} · save {formatPrice(pricing.save)}
+                  </PinnedTag>
+                </div>
+              )}
               <PriceTag product={product} size="detail" />
               <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${stockStyles[status]}`}>
                 {stockLabel[status]}
@@ -197,6 +248,12 @@ const ProductDetail: React.FC = () => {
                 Call {business.phones[0].label}
               </a>
             </div>
+            <p className="mt-2 text-sm text-slate-600">
+              Or call our landline{' '}
+              <a href={business.phones[1].href} className="font-semibold text-ink hover:underline">
+                {business.phones[1].label}
+              </a>
+            </p>
             <button
               onClick={() => (inList ? enquiryList.open() : enquiryList.add(product))}
               className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-md border px-5 py-3 text-[15px] font-semibold transition-colors ${

@@ -14,7 +14,7 @@ html {
 
 /* Keep anchored sections clear of the sticky navbar */
 section[id] {
-  scroll-margin-top: 72px;
+  scroll-margin-top: 136px;
 }
 
 body {
@@ -86,6 +86,50 @@ h1, h2, h3, h4 {
 
 @media (prefers-reduced-motion: reduce) {
   .animate-rec { animation: none; }
+}
+
+/* Homepage slider: the active bar fills, then advances the slide when it ends */
+@keyframes slide-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.slide-progress {
+  animation-name: slide-progress;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+/* Dashain kites drift on the breeze */
+@keyframes kite-sway {
+  from { transform: translate(0, 0) rotate(-2deg); }
+  to { transform: translate(6px, -10px) rotate(3deg); }
+}
+
+.kite-a, .kite-b, .kite-c {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: kite-sway 5s ease-in-out infinite alternate;
+}
+
+.kite-b { animation-duration: 6.5s; animation-delay: -2s; }
+.kite-c { animation-duration: 4.2s; animation-delay: -1s; }
+
+/* Diyo flame flickers */
+@keyframes diyo-flicker {
+  0%, 100% { transform: scale(1, 1); opacity: 1; }
+  40% { transform: scale(0.92, 1.08); opacity: 0.9; }
+  70% { transform: scale(1.05, 0.95); }
+}
+
+.diyo-flame {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: diyo-flicker 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kite-a, .kite-b, .kite-c, .diyo-flame { animation: none; }
 }
 
 /* Horizontal scrollers without a visible scrollbar */

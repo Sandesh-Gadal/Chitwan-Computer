@@ -15,6 +15,10 @@ import {
   useProductPage,
 } from '../api/products';
 import { business, whatsappLink } from '../data/business';
+import Seo, { breadcrumbSchema } from './Seo';
+import { categorySeo } from '../data/seo';
+import { PinnedTag } from './festival/FestivalPieces';
+import { useFestival } from './festival/registry';
 
 const PER_PAGE = 12;
 const PRICE_STEP = 500;
@@ -36,6 +40,7 @@ const formatRs = (n: number) => `Rs. ${n.toLocaleString('en-IN')}`;
 const Products = () => {
   const [params, setParams] = useSearchParams();
   const listMode = LIST_KEYS.some((key) => params.has(key));
+  const festive = useFestival();
 
   // Filters live in the URL so filtered views can be shared, linked to and bookmarked
   const update = (changes: Record<string, string | null>) => {
@@ -70,6 +75,7 @@ const Products = () => {
 
   return (
     <section className="min-h-screen bg-paper pb-28">
+      <CatalogueSeo listMode={listMode} />
       {/* Header */}
       <div className="border-b border-slate-200 bg-paper">
         <div className="mx-auto max-w-7xl px-4 pb-10 pt-14 sm:px-6 lg:px-8 lg:pt-16">
@@ -84,11 +90,19 @@ const Products = () => {
                   All categories
                 </Link>
               )}
+              {festive && (
+                <div className="mb-5 pt-2">
+                  <PinnedTag size="md" tilt={-3}>
+                    {festive.festival.dealsTitle} on selected items
+                  </PinnedTag>
+                </div>
+              )}
               <h1 className="font-display text-4xl font-semibold leading-[1.05] text-ink sm:text-5xl">
                 {listMode ? <ListTitle /> : 'Browse our products'}
               </h1>
               <p className="mt-4 max-w-xl text-lg text-slate-700">
-                Laptops, desktops, CCTV, networking, storage and accessories, all available at our Lionschowk store.
+                {(listMode && categorySeo[params.get('category') ?? '']?.description) ||
+                  'Laptops, desktops, CCTV, networking, storage and accessories, all available at our Lionschowk store.'}
               </p>
             </div>
 
@@ -122,6 +136,59 @@ const Products = () => {
 
       {listMode ? <ProductList update={update} /> : <CategoryOverview />}
     </section>
+  );
+};
+
+/* ------------------------------------------------------------------------- */
+/* Search engine tags                                                         */
+/* ------------------------------------------------------------------------- */
+
+// Category and brand pages are indexed on their own; searches and filter combinations point back to them
+const CatalogueSeo: React.FC<{ listMode: boolean }> = ({ listMode }) => {
+  const query = useListQuery();
+  const { data: facets } = useFacets(query, listMode);
+  const crumbs = [
+    { name: 'Home', path: '/' },
+    { name: 'Products', path: '/products' },
+  ];
+
+  if (listMode && query.category) {
+    const name = facets?.categories.find((c) => c.slug === query.category)?.name ?? query.category;
+    const path = `/products?category=${encodeURIComponent(query.category)}`;
+    const seo = categorySeo[query.category];
+    return (
+      <Seo
+        title={seo?.title ?? `${name} Price in Nepal | Chitwan Computer`}
+        description={seo?.description ?? `${name} with prices, in stock at Chitwan Computer, Narayanghat.`}
+        path={path}
+        schema={breadcrumbSchema([...crumbs, { name, path }])}
+      />
+    );
+  }
+
+  if (listMode && query.brands?.length === 1) {
+    const slug = query.brands[0];
+    const name = facets?.brands.find((b) => b.slug === slug)?.name ?? slug;
+    const path = `/products?brand=${encodeURIComponent(slug)}`;
+    return (
+      <Seo
+        title={`${name} Price in Nepal | ${name} Dealer in Chitwan`}
+        description={`Genuine ${name} products with prices and warranty, available at Chitwan Computer, Lionschowk, Narayanghat.`}
+        path={path}
+        schema={breadcrumbSchema([...crumbs, { name, path }])}
+      />
+    );
+  }
+
+  return (
+    <Seo
+      title="All Products: Laptops, CCTV, Printers & PC Parts | Chitwan Computer"
+      description="Browse every laptop, desktop, monitor, CCTV camera, printer, router and accessory we stock, with prices. Computer shop in Narayanghat, Chitwan."
+      path="/products"
+      schema={breadcrumbSchema(crumbs)}
+      // Search results and filter combinations shouldn't compete with the real category pages
+      noindex={listMode && (!!query.q?.trim() || (query.brands?.length ?? 0) > 1 || query.minPrice != null || query.maxPrice != null)}
+    />
   );
 };
 
@@ -437,8 +504,13 @@ const ProductList: React.FC<{ update: (changes: Record<string, string | null>) =
 
             <p className="mt-8 text-center text-sm text-slate-600">
               Can't find what you need?{' '}
+              Call{' '}
               <a href={business.phones[0].href} className="font-semibold text-ink underline-offset-4 hover:underline">
-                Call {business.phones[0].label}
+                {business.phones[0].label}
+              </a>{' '}
+              or{' '}
+              <a href={business.phones[1].href} className="font-semibold text-ink underline-offset-4 hover:underline">
+                {business.phones[1].label}
               </a>
             </p>
           </>

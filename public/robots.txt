@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+# Search results pages add nothing beyond the category pages
+Disallow: /products?q=
+
+Sitemap: https://www.chitwancomputer.com.np/sitemap.xml

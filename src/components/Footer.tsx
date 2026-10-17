@@ -1,18 +1,19 @@
 import React from 'react';
 import { Facebook, Instagram, Youtube, ArrowUp } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import { business } from '../data/business';
+import { useCategories } from '../api/products';
+import { useFestival } from './festival/registry';
+import { TikaIcon } from './festival/icons';
 
 const links = [
-  { id: 'about', label: 'About us' },
-  { id: 'services', label: 'Services' },
-  { id: 'products', label: 'Products' },
-  { id: 'testimonials', label: 'Reviews' },
-  { id: 'contact', label: 'Contact' },
+  { to: '/products?view=all', label: 'All products' },
+  { to: '/about#about', label: 'About us' },
+  { to: '/about#services', label: 'Services' },
+  { to: '/about#testimonials', label: 'Reviews' },
+  { to: '/about#contact', label: 'Contact' },
 ];
-
-const services = ['Laptop & computer sales', 'Custom PC building', 'Printers & CCTV', 'Repair & maintenance', 'IT consultancy'];
 
 const socials = [
   { icon: Facebook, href: business.socials.facebook, label: 'Facebook' },
@@ -21,28 +22,16 @@ const socials = [
 ];
 
 const Footer: React.FC = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const goTo = (id: string) => {
-    if (id === 'products') {
-      navigate('/products');
-      window.scrollTo({ top: 0 });
-      return;
-    }
-    if (location.pathname !== '/') {
-      navigate('/');
-      setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }), 300);
-    } else {
-      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  const { data: categories = [] } = useCategories();
+  const festive = useFestival();
+  const shop = categories.filter((c) => (c.products_count ?? 0) > 0).sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
 
   return (
-    <footer className="bg-ink text-slate-300">
+    // Bottom padding on phones keeps the last line clear of the quick-contact bar
+    <footer className="bg-ink pb-16 text-slate-300 md:pb-0">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-12 lg:py-20">
-          <div className="lg:col-span-4">
+          <div className="lg:col-span-3">
             <div className="flex items-center gap-3">
               <img src={logo} alt="" className="h-10 w-10 rounded-md object-contain" />
               <span className="font-display text-lg font-semibold text-white">{business.name}</span>
@@ -70,20 +59,24 @@ const Footer: React.FC = () => {
             <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-white">Explore</h3>
             <ul className="mt-5 space-y-3 text-[15px]">
               {links.map((link) => (
-                <li key={link.id}>
-                  <button onClick={() => goTo(link.id)} className="transition-colors hover:text-white">
+                <li key={link.to}>
+                  <Link to={link.to} className="transition-colors hover:text-white">
                     {link.label}
-                  </button>
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          <div className="lg:col-span-3">
-            <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-white">Services</h3>
-            <ul className="mt-5 space-y-3 text-[15px]">
-              {services.map((service) => (
-                <li key={service}>{service}</li>
+          <div className="lg:col-span-4">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-white">Shop</h3>
+            <ul className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 text-[15px]">
+              {shop.map((c) => (
+                <li key={c.slug}>
+                  <Link to={`/products?category=${encodeURIComponent(c.slug)}`} className="transition-colors hover:text-white">
+                    {c.name}
+                  </Link>
+                </li>
               ))}
             </ul>
           </div>
@@ -118,6 +111,17 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
+        {festive && (
+          <p className="flex items-center justify-center gap-3 border-t border-white/10 py-5 text-center text-sm" style={{ color: festive.festival.theme.accent }}>
+            <festive.decor.Mark className="h-5 w-3.5 -rotate-12" />
+            <TikaIcon className="h-3.5 w-3.5" />
+            <span lang="ne" className="font-semibold">
+              {festive.festival.greeting.ne}
+            </span>
+            <TikaIcon className="h-3.5 w-3.5" />
+            <festive.decor.Mark className="h-5 w-3.5 rotate-12" />
+          </p>
+        )}
         <div className="flex flex-col gap-4 border-t border-white/10 py-6 text-sm sm:flex-row sm:items-center sm:justify-between">
           <p>
             © {new Date().getFullYear()} {business.name}. All rights reserved. Designed by Sandesh Gadal.
