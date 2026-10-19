@@ -34,6 +34,8 @@ const HeroCarousel: React.FC = () => {
   const slide = slides[index];
   const festival = festivals.find((f) => f.id === slide.festival);
   const decor = slide.festival ? festivalDecor[slide.festival] : undefined;
+  // A festival with a daytime sky gets dark copy; photo slides and dusk festivals keep light copy
+  const sky = decor ? festival?.theme.sky : undefined;
 
   return (
     <section
@@ -74,12 +76,15 @@ const HeroCarousel: React.FC = () => {
               <div
                 className="absolute inset-0"
                 style={{
-                  background: `radial-gradient(circle at 78% 70%, ${festival.theme.accent}55, transparent 45%), linear-gradient(120deg, ${festival.theme.deep} 30%, ${festival.theme.base})`,
+                  background: sky
+                    ? `radial-gradient(circle at 80% 62%, #FFFFFFcc, transparent 38%), linear-gradient(to bottom, ${sky.top}, ${sky.horizon} 75%)`
+                    : `radial-gradient(circle at 78% 70%, ${festival.theme.accent}55, transparent 45%), linear-gradient(120deg, ${festival.theme.deep} 30%, ${festival.theme.base})`,
                 }}
               />
+              {decor.Scene && <decor.Scene theme={festival.theme} />}
               <Sprinkles items={decor.slide} className="hidden sm:block" />
               <Sprinkles items={decor.slide.slice(0, 3).map((s) => ({ ...s, y: s.y - 4, size: s.size * 0.6 }))} className="sm:hidden" />
-              <div className="absolute bottom-20 right-6 hidden sm:block lg:bottom-24 lg:right-14">
+              <div className="absolute right-6 top-6 hidden sm:block lg:right-10 lg:top-8">
                 <PinnedTag size="md" tilt={5}>
                   {festival.note}
                 </PinnedTag>
@@ -112,14 +117,27 @@ const HeroCarousel: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
             >
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">{slide.eyebrow}</p>
-              <h2 className="mt-3 font-display text-[1.9rem] font-semibold leading-[1.08] text-white sm:text-4xl lg:text-[2.75rem]">
+              <p
+                className={`text-xs font-semibold uppercase tracking-[0.18em] ${sky ? '' : 'text-slate-300'}`}
+                style={sky && festival ? { color: festival.theme.base } : undefined}
+              >
+                {slide.eyebrow}
+              </p>
+              <h2
+                className={`mt-3 font-display text-[1.9rem] font-semibold leading-[1.08] sm:text-4xl lg:text-[2.75rem] ${
+                  sky ? 'text-ink' : 'text-white'
+                }`}
+              >
                 {slide.title}
               </h2>
-              <p className="mt-4 max-w-md text-[15px] leading-relaxed text-slate-300 sm:text-base">{slide.text}</p>
+              <p className={`mt-4 max-w-md text-[15px] leading-relaxed sm:text-base ${sky ? 'text-slate-800' : 'text-slate-300'}`}>
+                {slide.text}
+              </p>
               <Link
                 to={slide.cta.to}
-                className="group mt-7 inline-flex items-center gap-2 rounded-md bg-white px-5 py-3 text-sm font-semibold text-ink transition-colors hover:bg-slate-100"
+                className={`group mt-7 inline-flex items-center gap-2 rounded-md px-5 py-3 text-sm font-semibold transition-colors ${
+                  sky ? 'bg-ink text-white hover:bg-slate-800' : 'bg-white text-ink hover:bg-slate-100'
+                }`}
               >
                 {slide.cta.label}
                 <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />

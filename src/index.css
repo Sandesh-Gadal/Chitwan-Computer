@@ -128,8 +128,31 @@ h1, h2, h3, h4 {
   animation: diyo-flicker 1.6s ease-in-out infinite;
 }
 
+/* Ping (bamboo swing) rocks from its apex; the kite flyer's string tugs from the hand */
+@keyframes ping-swing {
+  from { transform: rotate(-26deg); }
+  to { transform: rotate(26deg); }
+}
+
+.ping-swing {
+  transform-origin: 0 0;
+  animation: ping-swing 1.8s ease-in-out infinite alternate;
+}
+
+.ping-swing-slow { animation-duration: 2.6s; animation-delay: -1s; }
+
+@keyframes kite-tug {
+  from { transform: rotate(-3deg); }
+  to { transform: rotate(3deg); }
+}
+
+.kite-tether {
+  transform-origin: 0 0;
+  animation: kite-tug 4s ease-in-out infinite alternate;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .kite-a, .kite-b, .kite-c, .diyo-flame { animation: none; }
+  .kite-a, .kite-b, .kite-c, .diyo-flame, .ping-swing, .kite-tether { animation: none; }
 }
 
 /* Horizontal scrollers without a visible scrollbar */

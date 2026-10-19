@@ -4,6 +4,8 @@ import shelves1600 from '../assets/store-shelves-1600.jpg';
 import shelves900 from '../assets/store-shelves-900.jpg';
 import { business } from '../data/business';
 import { gsap, MOTION_OK } from '../lib/gsap';
+import { useFestival } from './festival/registry';
+import { PinnedTag } from './festival/FestivalPieces';
 
 const yearsServing = new Date().getFullYear() - business.since;
 
@@ -23,6 +25,7 @@ const Word: React.FC<{ children: string }> = ({ children }) => (
 
 const Hero: React.FC = () => {
   const root = useRef<HTMLElement>(null);
+  const festive = useFestival();
 
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -160,9 +163,16 @@ const Hero: React.FC = () => {
                   className="hero-img aspect-[3/2] w-full scale-110 object-cover"
                 />
               </div>
-              <span className="hero-tag absolute bottom-4 left-4 rounded bg-ink px-3 py-1.5 text-xs font-semibold text-white shadow-md">
-                CCTV, NVRs, UPS &amp; PC parts — in stock
-              </span>
+              {/* Festival-coloured pinned tag while a festival is on, the plain dark tag otherwise */}
+              {festive ? (
+                <span className="hero-tag absolute bottom-5 left-4">
+                  <PinnedTag tilt={-3}>CCTV, NVRs, UPS &amp; PC parts — in stock</PinnedTag>
+                </span>
+              ) : (
+                <span className="hero-tag absolute bottom-4 left-4 rounded bg-ink px-3 py-1.5 text-xs font-semibold text-white shadow-md">
+                  CCTV, NVRs, UPS &amp; PC parts — in stock
+                </span>
+              )}
             </div>
             <figcaption className="mt-4 text-sm text-slate-600">Our showroom at {business.address.line1}.</figcaption>
           </figure>

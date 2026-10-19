@@ -27,6 +27,8 @@ export interface Festival {
     cream: string;
     /** Highlight colour */
     accent: string;
+    /** Daytime sky for the festival slide (top, horizon). Without it the slide is deep → base. */
+    sky?: { top: string; horizon: string };
   };
   /** First slide in the homepage slider while the festival is on */
   slide: { eyebrow: string; title: string; text: string; cta: { label: string; to: string } };
@@ -44,7 +46,13 @@ export const festivals: Festival[] = [
     end: '2026-10-25',
     greeting: { ne: 'विजया दशमी २०८३ को हार्दिक मंगलमय शुभकामना', en: 'Happy Vijaya Dashami' },
     note: 'Tika falls on Wednesday, 21 October.',
-    theme: { deep: '#3A0D0F', base: '#5C1416', cream: '#FBE7C2', accent: '#F6B451' },
+    theme: {
+      deep: '#3A0D0F',
+      base: '#5C1416',
+      cream: '#FBE7C2',
+      accent: '#F6B451',
+      sky: { top: '#7DC0EA', horizon: '#E4F3FC' },
+    },
     slide: {
       eyebrow: 'Dashain 2083',
       title: 'Going home for Dashain? Leave a camera watching.',
