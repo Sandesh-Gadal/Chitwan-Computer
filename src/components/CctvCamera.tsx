@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { gsap, MOTION_OK } from '../lib/gsap';
 
 // Side view of a Uniview-style bullet camera on a wall bracket, lens facing left.
@@ -16,7 +16,9 @@ const UNV_PATHS = [
   'M39.15,9.46a14.23,14.23,0,0,0-22.3,0,21.14,21.14,0,0,1,22.3,0',
 ];
 
-const CctvCamera: React.FC = () => {
+const CCTV_CATEGORY = 'cctv-cameras';
+
+const CameraButton: React.FC = () => {
   const svgRef = useRef<SVGSVGElement>(null);
   const headRef = useRef<SVGGElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -82,7 +84,7 @@ const CctvCamera: React.FC = () => {
     <button
       ref={buttonRef}
       type="button"
-      onClick={() => navigate('/products?category=cctv-cameras')}
+      onClick={() => navigate(`/products?category=${CCTV_CATEGORY}`)}
       title="Need CCTV? We supply and install it."
       aria-label="Shop CCTV cameras"
       className="fixed right-0 top-[164px] z-40 hidden w-[140px] drop-shadow-[0_10px_14px_rgba(15,23,42,0.2)] md:block xl:w-[165px]"
@@ -164,6 +166,14 @@ const CctvCamera: React.FC = () => {
       </svg>
     </button>
   );
+};
+
+// Only show the camera while the CCTV category is open
+const CctvCamera: React.FC = () => {
+  const { pathname } = useLocation();
+  const [params] = useSearchParams();
+  if (pathname !== '/products' || params.get('category') !== CCTV_CATEGORY) return null;
+  return <CameraButton />;
 };
 
 export default CctvCamera;
