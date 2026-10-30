@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ClipboardCheck, ClipboardPlus } from 'lucide-react';
+import { ClipboardCheck, ClipboardPlus, GitCompareArrows } from 'lucide-react';
 import { useEnquiry } from '../../context/EnquiryContext';
+import { useCompare } from '../../context/CompareContext';
 import { Product, priceInfo, productImages, stockLabel, stockStatus } from '../../api/products';
 import { PinnedTag } from '../festival/FestivalPieces';
 import { useFestival } from '../festival/registry';
@@ -15,6 +16,9 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
   const [cover, alternate] = productImages(product);
   const enquiry = useEnquiry();
   const saved = enquiry.has(product.id);
+  const compare = useCompare();
+  const comparing = compare.has(product.id);
+  const compareFull = compare.isFull && !comparing;
   const festive = useFestival();
   const percentOff = priceInfo(product)?.percentOff ?? 0;
 
@@ -24,6 +28,12 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
     e.stopPropagation();
     if (saved) enquiry.remove(product.id);
     else enquiry.add(product);
+  };
+
+  const toggleCompare = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    compare.toggle(product);
   };
 
   return (
@@ -65,6 +75,21 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
           }`}
         >
           {saved ? <ClipboardCheck size={17} /> : <ClipboardPlus size={17} />}
+        </button>
+        <button
+          type="button"
+          onClick={toggleCompare}
+          disabled={compareFull}
+          aria-pressed={comparing}
+          aria-label={comparing ? `Remove ${product.name} from comparison` : `Compare ${product.name}`}
+          title={comparing ? 'Added to compare' : compareFull ? 'Compare list is full' : 'Add to compare'}
+          className={`absolute bottom-3 right-14 flex h-9 w-9 items-center justify-center rounded-full shadow-md transition-all duration-300 disabled:cursor-not-allowed ${
+            comparing
+              ? 'bg-ink text-white'
+              : 'bg-white text-ink opacity-100 hover:bg-ink hover:text-white disabled:hover:bg-white disabled:hover:text-slate-400 sm:translate-y-2 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100'
+          }`}
+        >
+          <GitCompareArrows size={17} />
         </button>
         {festive && percentOff > 0 && (
           <span className="absolute bottom-3 left-3">
