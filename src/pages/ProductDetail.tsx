@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ChevronRight, Phone, MapPin, Clock, Share2, ClipboardPlus, ClipboardCheck } from 'lucide-react';
+import { ChevronRight, Phone, MapPin, Clock, Share2, ClipboardPlus, ClipboardCheck, GitCompareArrows } from 'lucide-react';
 import ProductCard from '../components/products/ProductCard';
 import WhatsAppIcon from '../components/ui/WhatsAppIcon';
 import ProductGallery from '../components/products/ProductGallery';
@@ -18,6 +18,7 @@ import {
   priceInfo,
 } from '../api/products';
 import { useEnquiry } from '../context/EnquiryContext';
+import { useCompare } from '../context/CompareContext';
 import { useRecentlyViewed } from '../hooks/useRecentlyViewed';
 import { business, whatsappLink } from '../data/business';
 import Seo, { breadcrumbSchema } from '../components/Seo';
@@ -38,6 +39,7 @@ const ProductDetail: React.FC = () => {
   const productId = Number(id);
   const { data: product, isLoading, isError } = useProduct(productId);
   const enquiryList = useEnquiry();
+  const compare = useCompare();
   const recentIds = useRecentlyViewed(product?.id);
   const festive = useFestival();
 
@@ -263,13 +265,38 @@ const ProductDetail: React.FC = () => {
               {inList ? <ClipboardCheck size={17} /> : <ClipboardPlus size={17} />}
               {inList ? 'In your enquiry list · view' : 'Add to enquiry list'}
             </button>
-            <button
-              onClick={share}
-              className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition-colors hover:text-ink"
-            >
-              <Share2 size={15} />
-              Share this product
-            </button>
+            <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2">
+              <button
+                onClick={() => compare.toggle(product)}
+                disabled={compare.isFull && !compare.has(product.id)}
+                aria-pressed={compare.has(product.id)}
+                className={`inline-flex items-center gap-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                  compare.has(product.id) ? 'text-primary-700' : 'text-slate-600 hover:text-ink'
+                }`}
+              >
+                <GitCompareArrows size={15} />
+                {compare.has(product.id)
+                  ? 'Added to compare · remove'
+                  : compare.isFull
+                    ? 'Compare list is full'
+                    : 'Add to compare'}
+              </button>
+              {compare.count >= 2 && (
+                <Link
+                  to={`/compare?ids=${compare.ids.join(',')}`}
+                  className="text-sm font-semibold text-primary-600 hover:underline"
+                >
+                  Compare {compare.count} products
+                </Link>
+              )}
+              <button
+                onClick={share}
+                className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition-colors hover:text-ink"
+              >
+                <Share2 size={15} />
+                Share this product
+              </button>
+            </div>
 
             {product.description && (
               <div className="mt-10 border-t border-slate-200 pt-8">

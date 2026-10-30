@@ -124,7 +124,14 @@ const Footer: React.FC = () => {
         )}
         <div className="flex flex-col gap-4 border-t border-white/10 py-6 text-sm sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {new Date().getFullYear()} {business.name}. All rights reserved. Designed by Sandesh Gadal.
+            © {new Date().getFullYear()} {business.name}. All rights reserved. Designed by{' '}
+            <a
+              href="https://www.sandeshgadal.com.np/"
+              className="underline underline-offset-4 transition-colors hover:text-white"
+            >
+              Sandesh Gadal
+            </a>
+            .
           </p>
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}

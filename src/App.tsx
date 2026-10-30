@@ -9,11 +9,14 @@ import FloatingContact from './components/ui/FloatingContact';
 import { FestivalFloaters } from './components/festival/FestivalPieces';
 import EnquiryDrawer from './components/products/EnquiryDrawer';
 import { EnquiryProvider } from './context/EnquiryContext';
+import { CompareProvider } from './context/CompareContext';
+import CompareTray from './components/products/CompareTray';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import Store from './pages/Store';
 import Products from './components/ProductPage';
 import ProductDetail from './pages/ProductDetail';
+import Compare from './pages/Compare';
 
 // The PC builder pulls in three.js, so it loads separately from the rest of the site
 const BuildPc = lazy(() => import('./pages/BuildPc'));
@@ -39,6 +42,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <EnquiryProvider>
+      <CompareProvider>
       <div className="font-sans">
         <ScrollManager />
         <Navbar />
@@ -50,6 +54,7 @@ function App() {
           <Route path="/about" element={<Home />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/compare" element={<Compare />} />
           <Route
             path="/build-pc"
             element={
@@ -62,6 +67,7 @@ function App() {
 
         <Footer />
         <EnquiryDrawer />
+        <CompareTray />
         <MobileActionBar />
         <FloatingContact />
         
@@ -70,6 +76,7 @@ function App() {
           <ReactQueryDevtools initialIsOpen={false} />
         )}
       </div>
+      </CompareProvider>
       </EnquiryProvider>
     </QueryClientProvider>
   );
