@@ -3,6 +3,8 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
+  # Sitemap is built live from the API by sitemap.php
+  RewriteRule ^sitemap\.xml$ /sitemap.php [L]
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
