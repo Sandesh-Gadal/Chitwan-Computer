@@ -11,6 +11,7 @@ import SearchBox from './SearchBox';
 import CategoryBar from './CategoryBar';
 import StoreStatusBadge from './ui/StoreStatusBadge';
 import FestivalBar from './festival/FestivalBar';
+import { Jhilimili } from './festival/Lights';
 
 // Company pages live on /about; each opens the matching section there
 const pages = [
@@ -150,6 +151,9 @@ const Navbar: React.FC = () => {
         </div>
 
         <CategoryBar categories={categories} />
+
+        {/* Tihar: jhilimili hanging from the header, so it stays in view while scrolling */}
+        <Jhilimili />
       </header>
 
       {/* Mobile menu drawer */}

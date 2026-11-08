@@ -62,6 +62,31 @@ export const festivals: Festival[] = [
     dealLabel: 'Dashain deal',
     dealsTitle: 'Dashain price drops',
   },
+  {
+    // Tihar 2083: Kag Tihar 7 Nov, Kukur Tihar & Laxmi Puja 8 Nov, Gai/Goru Tihar & Mha Puja 9–10 Nov,
+    // Bhai Tika 11 Nov 2026. Starts a few days early so gift shoppers see it before the festival.
+    id: 'tihar',
+    name: 'Tihar',
+    start: '2026-11-04',
+    end: '2026-11-11',
+    greeting: { ne: 'शुभ दीपावली तथा तिहार २०८३ को हार्दिक मंगलमय शुभकामना', en: 'Happy Tihar' },
+    note: 'Bhai Tika falls on Wednesday, 11 November.',
+    theme: {
+      // Night sky lit by diyos and sayapatri (marigold): no daytime sky, so the slide uses deep → base
+      deep: '#1C0A26',
+      base: '#4A1545',
+      cream: '#FFEBC9',
+      accent: '#FFA62B',
+    },
+    slide: {
+      eyebrow: 'Tihar 2083',
+      title: 'A Bhai Tika gift they’ll actually use.',
+      text: 'Laptops, headphones, keyboards and more for your brothers and sisters, with prices online. Pick it up at Lionschowk before Tika on 11 November.',
+      cta: { label: 'Browse gift ideas', to: '/products' },
+    },
+    dealLabel: 'Tihar deal',
+    dealsTitle: 'Tihar price drops',
+  },
 ];
 
 // Today's date in Nepal (UTC+5:45), as YYYY-MM-DD, so the switch-over happens at local midnight

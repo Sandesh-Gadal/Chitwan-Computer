@@ -32,7 +32,7 @@ export const keywords = {
     'graphics card price in Nepal',
   ],
   services: ['laptop repair Narayanghat', 'computer repair Chitwan', 'printer repair Chitwan', 'custom PC builder Chitwan'],
-  seasonal: ['Dashain offer laptop', 'Dashain offer 2083'],
+  seasonal: ['Dashain offer laptop', 'Dashain offer 2083', 'Tihar offer 2083', 'Bhai Tika gift laptop'],
 };
 
 /** Search-style title and description for each category page */

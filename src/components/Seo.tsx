@@ -14,6 +14,20 @@ interface SeoProps {
   noindex?: boolean;
 }
 
+/**
+ * JSON for a <script> tag. Helmet writes it with innerHTML and the data includes
+ * admin-entered text (product names, descriptions), so `<`, `>` and `&` are escaped
+ * as unicode escapes. A value like "</script><img onerror=…>" then can't close the tag, whether
+ * rendered in the browser or by a prerenderer. U+2028/2029 are escaped for old JS parsers.
+ */
+const safeJsonLd = (value: object) =>
+  JSON.stringify(value)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+
 /** Title, description, canonical URL, social previews and structured data for a page */
 const Seo: React.FC<SeoProps> = ({ title, description, path, image = OG_IMAGE, type = 'website', schema, noindex }) => {
   const url = `${SITE_URL}${path}`;
@@ -40,7 +54,7 @@ const Seo: React.FC<SeoProps> = ({ title, description, path, image = OG_IMAGE, t
 
       {schemas.map((s, i) => (
         <script key={i} type="application/ld+json">
-          {JSON.stringify(s)}
+          {safeJsonLd(s)}
         </script>
       ))}
     </Helmet>

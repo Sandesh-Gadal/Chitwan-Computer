@@ -10,3 +10,20 @@
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.html [L]
 </IfModule>
+
+# Security headers (audit 2026-11-08)
+# The Content-Security-Policy only lets scripts run from this site and Elfsight (the Google
+# reviews widget), so injected <script> tags and inline event handlers are blocked. It was
+# tested enforced on every page with zero violations.
+# If something stops loading, the browser console says "Refused to load … Content Security
+# Policy": add that host to the matching *-src list below. Common cases:
+#   new image host    -> img-src        new API/fetch host -> connect-src
+#   new embed/iframe  -> frame-src      new script/widget  -> script-src (and usually connect-src)
+<IfModule mod_headers.c>
+  Header always set Strict-Transport-Security "max-age=31536000"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://static.elfsight.com https://universe-static.elfsightcdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://api.chitwancomputer.com.np https://*.elfsight.com https://*.elfsightcdn.com https://*.googleusercontent.com; connect-src 'self' data: blob: https://api.chitwancomputer.com.np https://*.elfsight.com https://*.elfsightcdn.com; frame-src https://*.elfsight.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests"
+</IfModule>

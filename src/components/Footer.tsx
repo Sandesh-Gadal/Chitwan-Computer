@@ -5,7 +5,7 @@ import logo from '../assets/logo.png';
 import { business } from '../data/business';
 import { useCategories } from '../api/products';
 import { useFestival } from './festival/registry';
-import { TikaIcon } from './festival/icons';
+import { DiyoRow, Jhilimili } from './festival/Lights';
 
 const links = [
   { to: '/products?view=all', label: 'All products' },
@@ -28,7 +28,10 @@ const Footer: React.FC = () => {
 
   return (
     // Bottom padding on phones keeps the last line clear of the quick-contact bar
-    <footer className="bg-ink pb-16 text-slate-300 md:pb-0">
+    <footer className="relative bg-ink pb-16 text-slate-300 md:pb-0">
+      {/* Tihar: jhilimili along the top edge with a ledge of diyos beneath */}
+      <Jhilimili at="top" sag={16} wire="#8A7A6A" />
+      {festive?.decor.lights && <DiyoRow className="mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8" />}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-12 lg:py-20">
           <div className="lg:col-span-3">
@@ -114,11 +117,11 @@ const Footer: React.FC = () => {
         {festive && (
           <p className="flex items-center justify-center gap-3 border-t border-white/10 py-5 text-center text-sm" style={{ color: festive.festival.theme.accent }}>
             <festive.decor.Mark className="h-5 w-3.5 -rotate-12" />
-            <TikaIcon className="h-3.5 w-3.5" />
+            <festive.decor.Accent className="h-3.5 w-3.5" />
             <span lang="ne" className="font-semibold">
               {festive.festival.greeting.ne}
             </span>
-            <TikaIcon className="h-3.5 w-3.5" />
+            <festive.decor.Accent className="h-3.5 w-3.5" />
             <festive.decor.Mark className="h-5 w-3.5 rotate-12" />
           </p>
         )}
